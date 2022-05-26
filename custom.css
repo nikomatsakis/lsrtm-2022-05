@@ -444,6 +444,13 @@ mark,
   width: 50px;
 }
 
+.line6 img {
+  position: absolute;
+  top: 272px;
+  left: 10px;
+  width: 50px;
+}
+
 .line7 img {
   position: absolute;
   top: 300px;
