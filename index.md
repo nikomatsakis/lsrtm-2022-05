@@ -10,6 +10,15 @@ count: false
 
 ---
 
+# Agenda
+
+* Lecture: async
+* Code snippet w/ questions
+* Lecture: review
+* Open floor
+
+---
+
 # JavaScript promises
 
 ```js
@@ -433,3 +442,9 @@ I have been experimenting with a "structured concurrency" library called [moro](
 Also supports cancellation of the entire scope, as shown [here](https://github.com/nikomatsakis/moro/blob/d6ab92c5d0f0799a0a68dcd1c3f41d6d3a517df2/examples/monitor.rs).
 
 If you want to experiment with it, it's on crates.io, happy to discuss more offline!
+
+---
+
+# Open floor
+
+Opening up the floor for any announcements.
