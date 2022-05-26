@@ -2,30 +2,96 @@ class: center
 name: title
 count: false
 
-# Talk Template
+# LSRTM 2022-05
 
 .p60[![Ferris](./images/ferris.svg)]
 
-Don't forget to update the title in [index.html](./index.html)
-
-.me[.grey[*by* **Nicholas Matsakis**]]
-.left[.citation[View slides at `https://nikomatsakis.github.io/talkrepo/`]]
+.left[.citation[View slides at `https://nikomatsakis.github.io/lsrtm-2022-05/`]]
 
 ---
 
-# Slide 1
+# JavaScript promises
 
-You can put stuff here
+```js
+async function process() {
+    let promise = sendRequest();
+    let result = await promise;
+}
+
+async function sendRequest() { /* ... */ }
+```
+
+![JavaScript promise timeline](images/js-promise.drawio.svg)
+
+???
 
 ---
 
-# Code example
+# Rust futures
 
 ```rust
-fn main() {
-    println!("Hello, world");
+async fn process() {
+    let future = sendRequest();
+    let result = future.await;
 }
+
+async fn sendRequest() -> Result { /* ... */ }
 ```
+
+![Rust promise timeline](images/rust-promise.drawio.svg)
+
+---
+
+# Rust futures 1
+
+```rust
+async fn process() {
+    let future = sendRequest();
+    let result = future.await;
+}
+
+async fn sendRequest() -> Result { /* ...1 */ }
+```
+
+.line2[![Arrow](./images/Arrow.png)]
+
+![Rust promise timeline](images/rust-promise-step-1.drawio.svg)
+
+---
+
+# Rust futures 2
+
+```rust
+async fn process() {
+    let future = sendRequest();
+    let result = future.await;
+}
+
+async fn sendRequest() -> Result { /* ...2 */ }
+```
+
+.line3[![Arrow](./images/Arrow.png)]
+
+![Rust promise timeline](images/rust-promise-step-2.drawio.svg)
+
+---
+
+# Rust future combinators
+
+```rust
+use futures::future;
+
+async fn process() {
+    let future1 = sendRequest();
+    let future2 = sendRequest();
+    let future3 = future::join(future1, future2);
+    let (result1, result2) = future3.await;
+}
+
+async fn sendRequest() -> Result { /* ... */ }
+```
+
+![Rust combinator timeline](images/rust-combinator.drawio.svg)
 
 --
 
