@@ -458,6 +458,13 @@ mark,
   width: 50px;
 }
 
+.line8 img {
+  position: absolute;
+  top: 328px;
+  left: 10px;
+  width: 50px;
+}
+
 .col-right {
   position: absolute;
   top: 110px;

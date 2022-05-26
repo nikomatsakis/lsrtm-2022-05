@@ -287,9 +287,13 @@ template: f-u
 
 [Playground link](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=66455d3e61217d86ec4839c926619bf0)
 
+Based on a real-life bug
+
+What goes wrong?
+
 ---
 
-# What goes wrong?
+# Replica function
 
 ```rust
 async fn replica(host: u32, mut receiver: tokio::sync::mpsc::Receiver<char>) -> (u32, usize) {
@@ -308,35 +312,124 @@ async fn replica(host: u32, mut receiver: tokio::sync::mpsc::Receiver<char>) -> 
 
 ---
 
-# What goes wrong?
+name: sharding
+
+# Sharding
 
 ```rust
-async fn replica(host: u32, mut receiver: tokio::sync::mpsc::Receiver<char>) -> (u32, usize) {
-    let mut count = 0;
-    while let Some(message) = receiver.recv().await {
-        eprintln!("Host {host} received message {message:?}");
-        if message == '\n' {
-            break;
-        } else {
-            count += 1;
-        }
-    }
-    (host, count)
+let replicas = 3;
+let mut host_futures = FuturesUnordered::new();
+let mut host_senders = vec![];
+for host in 0..replicas {
+    let (sender, receiver) = channel(2);
+    host_senders.push(sender);
+    host_futures.push(replica(host, receiver));
 }
 ```
 
 ---
 
-# What goes wrong?
+template: sharding
+
+.line2[![Arrow](images/Arrow.png)]
+
+Stores the replicas
+
+---
+
+template: sharding
+
+.line4[![Arrow](images/Arrow.png)]
+
+Maximum channel capacity: 2
+
+---
+
+template: sharding
+
+.line5[![Arrow](images/Arrow.png)]
+
+Replica will drain from the channel (when it runs)
+
+
+---
+
+template: sharding
+
+.line8[![Arrow](images/Arrow.png)]
+
+![send](images/rust-snippet-send.drawio.svg)
+
+---
+
+name: send-data
+
+# Sending data
 
 ```rust
+for message in ['H', 'e', 'l', 'l', 'o', '\n'] {
+    for sender in &host_senders {
+        sender.send(message).await.unwrap();
+    }
+}
+```
+
+Now we send data to the replicas
+
+
+---
+
+# What is supposed to happen
+
+```rust
+while let Some((host, count)) = host_futures.next().await {
+    eprintln!("Host {host} received {count} bytes.");
+}
+```    
+
+Wait for replicas to finish sending data
+
+But what actually happens?
+
+---
+
+template: send-data
+
+.line1[![Arrow](images/Arrow.png)]
+
+![send](images/rust-snippet-send.drawio.svg)
+
+---
+
+template: send-data
+
+.line3[![Arrow](images/Arrow.png)]
+
+![send-1](images/rust-snippet-send-step-1.drawio.svg)
+
+---
+
+template: send-data
+
+.line3[![Arrow](images/Arrow.png)]
+
+![send-2](images/rust-snippet-send-step-2.drawio.svg)
+
+
+---
+
+template: send-data
+
+Deadlock!
 
 ---
 
 # Brief plug: moro
 
-I have been experimenting with a "structured concurrency" library called [moro](https://github.com/nikomatsakis/moro/).
+I have been experimenting with a "structured concurrency" library called [moro](https://github.com/nikomatsakis/moro/). API does not permit this sort of deadlock.
 
+[This example in moro](https://github.com/nikomatsakis/moro/blob/d6ab92c5d0f0799a0a68dcd1c3f41d6d3a517df2/examples/replicas.rs)
 
+Also supports cancellation of the entire scope, as shown [here](https://github.com/nikomatsakis/moro/blob/d6ab92c5d0f0799a0a68dcd1c3f41d6d3a517df2/examples/monitor.rs).
 
-
+If you want to experiment with it, it's on crates.io, happy to discuss more offline!
