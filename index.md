@@ -289,6 +289,50 @@ template: f-u
 
 ---
 
+# What goes wrong?
+
+```rust
+async fn replica(host: u32, mut receiver: tokio::sync::mpsc::Receiver<char>) -> (u32, usize) {
+    let mut count = 0;
+    while let Some(message) = receiver.recv().await {
+        eprintln!("Host {host} received message {message:?}");
+        if message == '\n' {
+            break;
+        } else {
+            count += 1;
+        }
+    }
+    (host, count)
+}
+```
+
+---
+
+# What goes wrong?
+
+```rust
+async fn replica(host: u32, mut receiver: tokio::sync::mpsc::Receiver<char>) -> (u32, usize) {
+    let mut count = 0;
+    while let Some(message) = receiver.recv().await {
+        eprintln!("Host {host} received message {message:?}");
+        if message == '\n' {
+            break;
+        } else {
+            count += 1;
+        }
+    }
+    (host, count)
+}
+```
+
+---
+
+# What goes wrong?
+
+```rust
+
+---
+
 # Brief plug: moro
 
 I have been experimenting with a "structured concurrency" library called [moro](https://github.com/nikomatsakis/moro/).
